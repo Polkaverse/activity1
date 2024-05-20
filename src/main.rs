@@ -12,7 +12,7 @@ fn xor_bytes(bytes1: &[u8], bytes2: &[u8]) -> Vec<u8> {
 fn printable_bytes(byte_array: &[u8]) -> String {
     byte_array
         .iter()
-        .map(|&b| if b.is_ascii_graphic() { b as char } else { ' '  })
+        .map(|&b| if b.is_ascii_graphic() { b as char } else { ' ' })
         .collect()
 }
 
@@ -34,6 +34,10 @@ fn main() {
     let longest_len = ciphertexts.iter().map(|c| c.len()).max().unwrap_or(0);
     println!("Longest ciphertext length: {}", longest_len);
 
+    // Generate a key of the longest ciphertext length
+    let mut key = vec![0u8; longest_len];
+    println!("Key : {:?}", key);
+
     // XOR analysis for pairs of ciphertexts
     for i in 0..ciphertexts.len() {
         for j in i + 1..ciphertexts.len() {
@@ -42,4 +46,22 @@ fn main() {
         }
     }
 
+    // Implement a method to identify plaintext patterns and recover key fragments
+    // This is an interactive and manual process, so the following is a placeholder
+    // Replace this with actual logic based on the analysis of the XOR results
+
+    // Placeholder: Assume part of the key is identified from analysis
+    let example_plaintext = b"Known part of plaintext"; // Replace with actual identified plaintext
+    let example_ciphertext = &ciphertexts[0][..example_plaintext.len()];
+    let key_fragment = xor_bytes(example_plaintext, example_ciphertext);
+
+    for i in 0..key_fragment.len() {
+        key[i] = key_fragment[i];
+    }
+
+    // Decrypt all messages with the partially or fully recovered key
+    for (i, ciphertext) in ciphertexts.iter().enumerate() {
+        let decrypted_message: Vec<u8> = xor_bytes(ciphertext, &key);
+        println!("Decrypted message {}: {}", i, printable_bytes(&decrypted_message));
+    }
 }
