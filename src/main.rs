@@ -1,6 +1,21 @@
 use hex;
 use std::str;
 
+fn hex_to_bytes(hex_string: &str) -> Vec<u8> {
+    hex::decode(hex_string).expect("Decoding failed")
+}
+
+fn xor_bytes(bytes1: &[u8], bytes2: &[u8]) -> Vec<u8> {
+    bytes1.iter().zip(bytes2.iter()).map(|(&x1, &x2)| x1 ^ x2).collect()
+}
+
+fn printable_bytes(byte_array: &[u8]) -> String {
+    byte_array
+        .iter()
+        .map(|&b| if b.is_ascii_graphic() { b as char } else { ' '  })
+        .collect()
+}
+
 fn main() {
     let ciphertexts_hex = vec![
         "160111433b00035f536110435a380402561240555c526e1c0e431300091e4f04451d1d490d1c49010d000a0a4510111100000d434202081f0755034f13031600030d0204040e",
@@ -13,5 +28,18 @@ fn main() {
         "0c06004316061b48002a4509065e45221654501c0a075f540c42190b165c",
         "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     ];
+
+    let ciphertexts: Vec<Vec<u8>> = ciphertexts_hex.iter().map(|c| hex_to_bytes(c)).collect();
+
+    let longest_len = ciphertexts.iter().map(|c| c.len()).max().unwrap_or(0);
+    println!("Longest ciphertext length: {}", longest_len);
+
+    // XOR analysis for pairs of ciphertexts
+    for i in 0..ciphertexts.len() {
+        for j in i + 1..ciphertexts.len() {
+            let xor_result = xor_bytes(&ciphertexts[i], &ciphertexts[j]);
+            println!("XOR of message {} and message {}: {}", i, j, printable_bytes(&xor_result));
+        }
+    }
 
 }
